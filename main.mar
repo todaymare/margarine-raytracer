@@ -19,7 +19,7 @@ fn main() {
             var ib = (b * 255.999) as int;
 
             output = output.concat(format(
-                "{} {} {} ", 
+                "{} {} {}\n", 
                 [ir.to_str(), ig.to_str(), ib.to_str()]
             ))
         }
