@@ -8,6 +8,7 @@ fn main() {
     var time = std::duration::Duration::now();
 
     for j in 0..height {
+        println(format("Scanlines remaining {}/{}", [j.to_str(), height.to_str()]));
         for i in 0..width {
             var r = i as float / width as float;
             var g = j as float / height as float;
