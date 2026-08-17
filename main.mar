@@ -1,0 +1,33 @@
+use std::string::format;
+
+fn main() {
+    var width = 256;
+    var height = 256;
+
+    var output = format("P3\n{} {}\n255\n", [width.to_str(), height.to_str()]);
+    var time = std::duration::Duration::now();
+
+    for j in 0..height {
+        for i in 0..width {
+            var r = i as float / width as float;
+            var g = j as float / height as float;
+            var b = 0.0;
+
+            var ir = (r * 255.999) as int;
+            var ig = (g * 255.999) as int;
+            var ib = (b * 255.999) as int;
+
+            output = output.concat(format(
+                "{} {} {} ", 
+                [ir.to_str(), ig.to_str(), ib.to_str()]
+            ))
+        }
+    }
+
+
+    println(time.elapsed());
+    var write_time = std::duration::Duration::now();
+    std::io::write_file("out.ppm", output.as_bytes());
+    println(write_time.elapsed());
+}
+
