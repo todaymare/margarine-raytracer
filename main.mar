@@ -1,6 +1,7 @@
 use std::string::format;
 
 mod math;
+mod ray;
 
 use math::*;
 

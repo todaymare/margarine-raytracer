@@ -1,0 +1,12 @@
+use root::math::Vec3;
+
+struct Ray {
+    ori: Vec3,
+    dir: Vec3,
+}
+
+
+impl Ray {
+    fn new(ori: Vec3, dir: Vec3): Self { Self { ori, dir } }
+    fn at(self, t: float): Vec3 { self.ori.add(self.dir.mul(Vec3::splat(t))) }
+}
