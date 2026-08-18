@@ -9,35 +9,35 @@ use ray::*;
 type Color = math::Vec3;
 
 fn main() {
-    var time = std::duration::Duration::now();
+    let time = std::duration::Duration::now();
 
-    var aspect_ratio = 16.0 / 9.0;
-    var image_width = 400;
+    let aspect_ratio = 16.0 / 9.0;
+    let image_width = 400;
 
-    var image_height = (image_width as float / aspect_ratio) as int;
-    var image_height = image_height.max(1);
+    let image_height = (image_width as float / aspect_ratio) as int;
+    let image_height = image_height.max(1);
 
-    var focal_length = 1.0;
-    var viewport_height = 2.0;
-    var viewport_width = viewport_height * (image_width as float / image_height as float);
-    var camera_center = Vec3::new(0.0, 0.0, 0.0);
+    let focal_length = 1.0;
+    let viewport_height = 2.0;
+    let viewport_width = viewport_height * (image_width as float / image_height as float);
+    let camera_center = Vec3::new(0.0, 0.0, 0.0);
 
-    var viewport_u = Vec3::with_x(viewport_width);
-    var viewport_v = Vec3::with_y(-viewport_height);
+    let viewport_u = Vec3::with_x(viewport_width);
+    let viewport_v = Vec3::with_y(-viewport_height);
 
-    var pixel_delta_u = viewport_u.scale(1.0 / image_width as float);
-    var pixel_delta_v = viewport_v.scale(1.0 / image_height as float);
+    let pixel_delta_u = viewport_u.scale(1.0 / image_width as float);
+    let pixel_delta_v = viewport_v.scale(1.0 / image_height as float);
 
-    var viewport_upper_left = camera_center
+    let viewport_upper_left = camera_center
         .sub(Vec3::with_z(focal_length))
         .sub(viewport_u.scale(0.5))
         .sub(viewport_v.scale(0.5));
 
-    var pixel_delta_center = pixel_delta_u
+    let pixel_delta_center = pixel_delta_u
         .add(pixel_delta_v)
         .scale(0.5);
 
-    var pixel00_loc = viewport_upper_left
+    let pixel00_loc = viewport_upper_left
         .add(pixel_delta_center);
 
     var output = format("P3\n{} {}\n255\n", [image_width.to_str(), image_height.to_str()]);
@@ -46,29 +46,29 @@ fn main() {
         println(format("Scanlines remaining: {}", [(image_height - j).to_str()]));
 
         for i in 0..image_width {
-            var pixel_center = pixel00_loc
+            let pixel_center = pixel00_loc
                 .add(pixel_delta_u.scale(i as float))
                 .add(pixel_delta_v.scale(j as float));
 
-            var ray_direction = pixel_center.sub(camera_center);
-            var r = Ray::new(camera_center, ray_direction);
+            let ray_direction = pixel_center.sub(camera_center);
+            let r = Ray::new(camera_center, ray_direction);
 
-            var pixel_color = r.color();
+            let pixel_color = r.color();
             write_color(&output, pixel_color);
         }
     }
 
     println(time.elapsed());
-    var write_time = std::duration::Duration::now();
+    let write_time = std::duration::Duration::now();
     std::io::write_file("out.ppm", output.as_bytes());
     println(write_time.elapsed());
 }
 
 
 fn write_color(&output: str, color: Color) {
-    var ir = (color.x * 255.999) as int;
-    var ig = (color.y * 255.999) as int;
-    var ib = (color.z * 255.999) as int;
+    let ir = (color.x * 255.999) as int;
+    let ig = (color.y * 255.999) as int;
+    let ib = (color.z * 255.999) as int;
 
     output = output.concat(format(
         "{} {} {}\n",
