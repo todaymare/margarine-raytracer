@@ -1,0 +1,54 @@
+pub struct Vec3 {
+    x: float,
+    y: float,
+    z: float,
+}
+
+
+impl Vec3 {
+    fn new(x: float, y: float, z: float): Self {
+        Self { x, y, z }
+    }
+
+    fn splat(value: float): Self {
+        Self::new(value, value, value)
+    }
+
+    fn neg(self): Vec3 {
+        Self::new(-self.x, -self.y, -self.z)
+    }
+
+    fn length_squared(self): float {
+        self.x*self.x + self.y*self.y + self.z*self.z
+    }
+
+    fn length(self): float {
+        self.length_squared().sqrt()
+    }
+
+    fn mul(self, b: Vec3): Vec3 {
+        Self::new(self.x*b.x, self.y*b.y, self.z*b.z)
+    }
+
+    fn div(self, b: Vec3): Vec3 {
+        Self::new(self.x * 1.0 / b.x, self.y * (1.0 / b.y), self.z * (1.0 / b.z))
+    }
+
+    fn dot(self): float {
+          self.x * self.x 
+        + self.y * self.y 
+        + self.z * self.z
+    }
+    
+    fn cross(self, v: Vec3): Self {
+        var u = self;
+        Self::new(u.y * v.z - u.z * v.y,
+                  u.z * v.x - u.x * v.z,
+                  u.x * v.y - u.y * v.x
+        )
+    }
+
+    fn unit(self): Self {
+        self.div(Self::splat(self.length()))
+    }
+}

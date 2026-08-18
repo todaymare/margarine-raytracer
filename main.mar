@@ -1,5 +1,11 @@
 use std::string::format;
 
+mod math;
+
+use math::*;
+
+type Color = math::Vec3;
+
 fn main() {
     var width = 256;
     var height = 256;
@@ -14,14 +20,9 @@ fn main() {
             var g = j as float / height as float;
             var b = 0.0;
 
-            var ir = (r * 255.999) as int;
-            var ig = (g * 255.999) as int;
-            var ib = (b * 255.999) as int;
+            var color = Color::new(r, g, b);
+            write_color(&output, color);
 
-            output = output.concat(format(
-                "{} {} {}\n", 
-                [ir.to_str(), ig.to_str(), ib.to_str()]
-            ))
         }
     }
 
@@ -30,5 +31,17 @@ fn main() {
     var write_time = std::duration::Duration::now();
     std::io::write_file("out.ppm", output.as_bytes());
     println(write_time.elapsed());
+}
+
+
+fn write_color(&output: str, color: Color) {
+    var ir = (color.x * 255.999) as int;
+    var ig = (color.y * 255.999) as int;
+    var ib = (color.z * 255.999) as int;
+
+    output = output.concat(format(
+        "{} {} {}\n", 
+        [ir.to_str(), ig.to_str(), ib.to_str()]
+    ))
 }
 
