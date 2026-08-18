@@ -1,4 +1,5 @@
 use root::math::Vec3;
+use root::hittable_list::HittableList;
 use root::Color;
 
 pub struct Ray {
@@ -11,34 +12,23 @@ impl Ray {
     fn new(ori: Vec3, dir: Vec3): Self { Self { ori, dir } }
     fn at(self, t: float): Vec3 { self.ori.add(self.dir.mul(Vec3::splat(t))) }
 
-    fn color(self): Color {
-        let t = hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, self);
-        if t > 0.0 {
-            let n = self.at(t).sub(Vec3::new(0.0, 0.0, -1.0)).unit();
-            return Color::new(0.5 * (n.x + 1.0), 0.5 * (n.y + 1.0), 0.5 * (n.z + 1.0));
+    fn color(self, world: HittableList): Color {
+        match world.hit(self, 0.0, 1.0 / 0.0) {
+            some(rec) => Color::new(
+                0.5 * (rec.normal.x + 1.0),
+                0.5 * (rec.normal.y + 1.0),
+                0.5 * (rec.normal.z + 1.0),
+            ),
+            none => {
+                let unit_direction = self.dir.unit();
+                let a = 0.5 * (unit_direction.y + 1.0);
+                let white = Color::new(1.0, 1.0, 1.0);
+                let blue = Color::new(0.5, 0.7, 1.0);
+
+                white.scale(1.0 - a)
+                    .add(blue.scale(a))
+            }
         }
-
-        let unit_direction = self.dir.unit();
-        let a = 0.5 * (unit_direction.y + 1.0);
-        let white = Color::new(1.0, 1.0, 1.0);
-        let blue = Color::new(0.5, 0.7, 1.0);
-
-        white.scale(1.0 - a)
-            .add(blue.scale(a))
-    }
-}
-
-pub fn hit_sphere(center: Vec3, radius: float, r: Ray): float {
-    let oc = center.sub(r.ori);
-    let a = r.dir.length_squared();
-    let h = r.dir.dot(oc);
-    let c = oc.length_squared() - radius * radius;
-    let discriminant = h * h - a * c;
-
-    if discriminant < 0.0 {
-        -1.0
-    } else {
-        (h - discriminant.sqrt()) / a
     }
 }
 

@@ -1,0 +1,34 @@
+use root::hittable::Hittable;
+use root::hittable::HitRecord;
+use root::ray::Ray;
+
+pub struct HittableList {
+    objects: [Hittable],
+}
+
+impl HittableList {
+    pub fn new(): Self {
+        Self { objects: [] }
+    }
+
+    pub fn add(self, object: Hittable): HittableList {
+        var objects = self.objects;
+        objects.push(object);
+        Self { objects: objects }
+    }
+
+    pub fn hit(self, r: Ray, ray_tmin: float, ray_tmax: float): Option<HitRecord> {
+        var closest_so_far = ray_tmax;
+        var best: Option<HitRecord> = none();
+        for object in self.objects.iter() {
+            match object.hit(r, ray_tmin, closest_so_far) {
+                some(rec) => {
+                    closest_so_far = rec.t;
+                    best = some(rec);
+                },
+                none => (),
+            }
+        }
+        best
+    }
+}

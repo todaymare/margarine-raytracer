@@ -3,14 +3,24 @@ use std::string::ToStr;
 
 mod math;
 mod ray;
+mod sphere;
+mod hittable_list;
+mod hittable;
 
 use math::*;
 use ray::*;
+use sphere::*;
+use hittable_list::*;
+use hittable::*;
 
 type Color = math::Vec3;
 
 fn main() {
     let time = std::duration::Duration::now();
+
+    let world = HittableList::new()
+        .add(Hittable::Sphere(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)))
+        .add(Hittable::Sphere(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0)));
 
     let aspect_ratio = 16.0 / 9.0;
     let image_width = 400;
@@ -54,7 +64,7 @@ fn main() {
             let ray_direction = pixel_center.sub(camera_center);
             let r = Ray::new(camera_center, ray_direction);
 
-            let pixel_color = r.color();
+            let pixel_color = r.color(world);
             write_color(&output, pixel_color);
         }
     }

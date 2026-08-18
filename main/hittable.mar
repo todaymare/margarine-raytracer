@@ -1,0 +1,37 @@
+use root::math::Vec3;
+use root::ray::Ray;
+use root::sphere::Sphere;
+use root::hittable_list::HittableList;
+
+pub struct HitRecord {
+    p: Vec3,
+    normal: Vec3,
+    t: float,
+    front_face: bool,
+}
+
+impl HitRecord {
+    pub fn set_face_normal(self, r: Ray, outward_normal: Vec3): HitRecord {
+        let front_face = r.dir.dot(outward_normal) < 0.0;
+        HitRecord {
+            p: self.p,
+            normal: if front_face { outward_normal } else { outward_normal.neg() },
+            t: self.t,
+            front_face: front_face,
+        }
+    }
+}
+
+pub enum Hittable {
+    Sphere: Sphere,
+    List: HittableList,
+}
+
+impl Hittable {
+    pub fn hit(self, r: Ray, ray_tmin: float, ray_tmax: float): Option<HitRecord> {
+        match self {
+            Sphere(s) => s.hit(r, ray_tmin, ray_tmax),
+            List(l) => l.hit(r, ray_tmin, ray_tmax),
+        }
+    }
+}

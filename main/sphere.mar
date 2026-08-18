@@ -1,0 +1,40 @@
+use root::math::Vec3;
+use root::ray::Ray;
+use root::hittable::HitRecord;
+use std::math::max_float;
+
+pub struct Sphere {
+    center: Vec3,
+    radius: float,
+}
+
+impl Sphere {
+    pub fn new(center: Vec3, radius: float): Self {
+        Self { center: center, radius: max_float(0.0, radius) }
+    }
+
+    pub fn hit(self, r: Ray, ray_tmin: float, ray_tmax: float): Option<HitRecord> {
+        let oc = self.center.sub(r.ori);
+        let a = r.dir.length_squared();
+        let h = r.dir.dot(oc);
+        let c = oc.length_squared() - self.radius * self.radius;
+        let discriminant = h * h - a * c;
+        if discriminant < 0.0 {
+            return none();
+        }
+
+        let sqrtd = discriminant.sqrt();
+        var root = (h - sqrtd) / a;
+        if root <= ray_tmin || ray_tmax <= root {
+            root = (h + sqrtd) / a;
+            if root <= ray_tmin || ray_tmax <= root {
+                return none();
+            }
+        }
+
+        let p = r.at(root);
+        let outward_normal = p.sub(self.center).div(Vec3::splat(self.radius));
+        let record = HitRecord { p: p, normal: outward_normal, t: root, front_face: false };
+        some(record.set_face_normal(r, outward_normal))
+    }
+}
