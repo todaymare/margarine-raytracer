@@ -10,6 +10,10 @@ impl Vec3 {
         Self { x, y, z }
     }
 
+    fn with_x(x: float): Self { Self::new(x, 0.0, 0.0) }
+    fn with_y(y: float): Self { Self::new(0.0, y, 0.0) }
+    fn with_z(z: float): Self { Self::new(0.0, 0.0, z) }
+
     fn splat(value: float): Self {
         Self::new(value, value, value)
     }
@@ -37,6 +41,8 @@ impl Vec3 {
     fn mul(self, b: Vec3): Vec3 {
         Self::new(self.x*b.x, self.y*b.y, self.z*b.z)
     }
+
+    fn scale(self, b: float): Vec3 { self.mul(Self::splat(b)) }
 
     fn div(self, b: Vec3): Vec3 {
         Self::new(self.x * 1.0 / b.x, self.y * (1.0 / b.y), self.z * (1.0 / b.z))

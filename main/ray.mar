@@ -1,6 +1,7 @@
 use root::math::Vec3;
+use root::Color;
 
-struct Ray {
+pub struct Ray {
     ori: Vec3,
     dir: Vec3,
 }
@@ -9,4 +10,15 @@ struct Ray {
 impl Ray {
     fn new(ori: Vec3, dir: Vec3): Self { Self { ori, dir } }
     fn at(self, t: float): Vec3 { self.ori.add(self.dir.mul(Vec3::splat(t))) }
+
+    fn color(self): Color {
+        var unit_direction = self.dir.unit();
+        var t = 0.5 * (unit_direction.y + 1.0);
+        var white = Color::new(1.0, 1.0, 1.0);
+        var blue = Color::new(0.5, 0.7, 1.0);
+
+        white.scale(1.0 - t)
+            .add(blue.scale(t))
+    }
 }
+
