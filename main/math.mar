@@ -26,6 +26,14 @@ impl Vec3 {
         self.length_squared().sqrt()
     }
 
+    fn add(self, b: Vec3): Vec3 {
+        Self::new(self.x+b.x, self.y+b.y, self.z+b.z)
+    }
+
+    fn sub(self, b: Vec3): Vec3 {
+        Self::new(self.x-b.x, self.y-b.y, self.z-b.z)
+    }
+
     fn mul(self, b: Vec3): Vec3 {
         Self::new(self.x*b.x, self.y*b.y, self.z*b.z)
     }
