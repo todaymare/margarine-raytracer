@@ -1,4 +1,5 @@
 use std::string::format;
+use std::string::ToStr;
 
 mod math;
 mod ray;

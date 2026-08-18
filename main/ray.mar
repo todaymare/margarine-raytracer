@@ -12,6 +12,10 @@ impl Ray {
     fn at(self, t: float): Vec3 { self.ori.add(self.dir.mul(Vec3::splat(t))) }
 
     fn color(self): Color {
+        if hit_sphere(Vec3::new(0.0, 0.0, -1.0), 0.5, self) {
+            return Color::new(1.0, 0.0, 0.0);
+        }
+
         let unit_direction = self.dir.unit();
         let t = 0.5 * (unit_direction.y + 1.0);
         let white = Color::new(1.0, 1.0, 1.0);
@@ -20,5 +24,14 @@ impl Ray {
         white.scale(1.0 - t)
             .add(blue.scale(t))
     }
+}
+
+pub fn hit_sphere(center: Vec3, radius: float, r: Ray): bool {
+    let oc = center.sub(r.ori);
+    let a = r.dir.dot(r.dir);
+    let b = -2.0 * r.dir.dot(oc);
+    let c = oc.dot(oc) - radius * radius;
+    let discriminant = b * b - 4.0 * a * c;
+    discriminant >= 0.0
 }
 

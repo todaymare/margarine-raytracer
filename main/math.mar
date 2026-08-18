@@ -48,10 +48,8 @@ impl Vec3 {
         Self::new(self.x * 1.0 / b.x, self.y * (1.0 / b.y), self.z * (1.0 / b.z))
     }
 
-    fn dot(self): float {
-          self.x * self.x 
-        + self.y * self.y 
-        + self.z * self.z
+    fn dot(self, other: Vec3): float {
+        self.x * other.x + self.y * other.y + self.z * other.z
     }
     
     fn cross(self, v: Vec3): Self {
