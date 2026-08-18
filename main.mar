@@ -8,17 +8,24 @@ use math::*;
 type Color = math::Vec3;
 
 fn main() {
-    var width = 256;
-    var height = 256;
-
-    var output = format("P3\n{} {}\n255\n", [width.to_str(), height.to_str()]);
     var time = std::duration::Duration::now();
 
-    for j in 0..height {
-        println(format("Scanlines remaining {}/{}", [j.to_str(), height.to_str()]));
-        for i in 0..width {
-            var r = i as float / width as float;
-            var g = j as float / height as float;
+    var aspect_ratio = 16.0 / 9.0;
+    var image_width = 400;
+    var image_height = (image_width as float / aspect_ratio) as int;
+    var image_height = image_height.max(1);
+
+    var viewport_height = 2.0;
+    var viewport_width = viewport_height * (image_width as float / image_height as float);
+
+    var output = format("P3\n{} {}\n255\n", [image_width.to_str(), image_height.to_str()]);
+
+
+    for j in 0..image_height {
+        println(format("Scanlines remaining {}/{}", [j.to_str(), image_height.to_str()]));
+        for i in 0..image_width {
+            var r = i as float / image_width as float;
+            var g = j as float / image_height as float;
             var b = 0.0;
 
             var color = Color::new(r, g, b);
