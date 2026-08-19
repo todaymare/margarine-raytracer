@@ -1,3 +1,5 @@
+use std::rand::Rng;
+use std::rand::Xoshiro256;
 use root::math::Vec3;
 use root::hittable_list::HittableList;
 use root::interval::Interval;
@@ -14,7 +16,7 @@ impl Ray {
     fn new(ori: Vec3, dir: Vec3): Self { Self { ori, dir } }
     fn at(self, t: float): Vec3 { self.ori.add(self.dir.mul(Vec3::splat(t))) }
 
-    fn color(self, world: HittableList, depth: int): Color {
+    fn color(self, world: HittableList, depth: int, &rng: Rng<Xoshiro256>): Color {
         if depth <= 0 {
             return Color::splat(0.0);
         }
@@ -22,17 +24,16 @@ impl Ray {
         match world.hit(self, Interval::new(0.001, 1.0 / 0.0)) {
             some(rec) => match rec.material {
                 Lambertian(albedo) => {
-                    let direction = rec.normal.add(Vec3::random_unit_vector());
+                    let direction = rec.normal.add(Vec3::random_unit_vector(&rng));
                     Ray::new(rec.p, direction)
-                        .color(world, depth - 1)
+                        .color(world, depth - 1, &rng)
                         .mul(albedo)
                 },
                 Metal(albedo) => {
                     let direction = self.dir.reflect(rec.normal);
                     if direction.dot(rec.normal) > 0.0 {
                         Ray::new(rec.p, direction)
-                            .color(world, depth - 1)
-                            .mul(albedo)
+                            .color(world, depth - 1, &rng)
                     } else {
                         Color::splat(0.0)
                     }

@@ -1,6 +1,7 @@
 use std::string::format;
 use std::string::ToStr;
-use std::rand::random;
+use std::rand::Rng;
+use std::rand::Xoshiro256;
 use root::math::Vec3;
 use root::ray::Ray;
 use root::hittable_list::HittableList;
@@ -21,6 +22,7 @@ impl Camera {
 
     pub fn render(self, world: HittableList) {
         let time = std::duration::Duration::now();
+        var rng = Rng::new(Xoshiro256::from_seed((1, 2, 3, 4)));
 
         let image_height = (self.image_width as float / self.aspect_ratio) as int;
         let image_height = image_height.max(1);
@@ -65,9 +67,10 @@ impl Camera {
                         pixel00_loc,
                         pixel_delta_u,
                         pixel_delta_v,
-                        camera_center
+                        camera_center,
+                        &rng
                     );
-                    pixel_color = pixel_color.add(ray.color(world, self.max_depth));
+                    pixel_color = pixel_color.add(ray.color(world, self.max_depth, &rng));
                 }
                 write_color(
                     &output,
@@ -89,17 +92,18 @@ impl Camera {
         pixel00_loc: Vec3,
         pixel_delta_u: Vec3,
         pixel_delta_v: Vec3,
-        camera_center: Vec3
+        camera_center: Vec3,
+        &rng: Rng<Xoshiro256>
     ): Ray {
-        let offset = self.sample_square();
+        let offset = self.sample_square(&rng);
         let pixel_sample = pixel00_loc
             .add(pixel_delta_u.scale(i as float + offset.x))
             .add(pixel_delta_v.scale(j as float + offset.y));
         Ray::new(camera_center, pixel_sample.sub(camera_center))
     }
 
-    fn sample_square(self): Vec3 {
-        Vec3::new(random::<float>() - 0.5, random::<float>() - 0.5, 0.0)
+    fn sample_square(self, &rng: Rng<Xoshiro256>): Vec3 {
+        Vec3::new(rng.random::<float>() - 0.5, rng.random::<float>() - 0.5, 0.0)
     }
 }
 

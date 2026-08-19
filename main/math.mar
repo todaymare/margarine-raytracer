@@ -1,4 +1,5 @@
-use std::rand::random;
+use std::rand::Rng;
+use std::rand::Xoshiro256;
 
 pub struct Vec3 {
     x: float,
@@ -45,22 +46,25 @@ impl Vec3 {
     }
 
     fn scale(self, b: float): Vec3 { self.mul(Self::splat(b)) }
-
-    fn random(): Self {
-        Self::new(random::<float>(), random::<float>(), random::<float>())
-    }
-
-    fn random_range(min: float, max: float): Self {
+    fn random(&rng: Rng<Xoshiro256>): Self {
         Self::new(
-            min + (max - min) * random::<float>(),
-            min + (max - min) * random::<float>(),
-            min + (max - min) * random::<float>()
+            rng.random::<float>(),
+            rng.random::<float>(),
+            rng.random::<float>()
         )
     }
 
-    fn random_unit_vector(): Self {
+    fn random_range(&rng: Rng<Xoshiro256>, min: float, max: float): Self {
+        Self::new(
+            min + (max - min) * rng.random::<float>(),
+            min + (max - min) * rng.random::<float>(),
+            min + (max - min) * rng.random::<float>()
+        )
+    }
+
+    fn random_unit_vector(&rng: Rng<Xoshiro256>): Self {
         loop {
-            let p = Self::random_range(-1.0, 1.0);
+            let p = Self::random_range(&rng, -1.0, 1.0);
             let length_squared = p.length_squared();
             if 1e-160 < length_squared && length_squared <= 1.0 {
                 return p.scale(1.0 / length_squared.sqrt());
@@ -68,14 +72,15 @@ impl Vec3 {
         }
     }
 
-    fn random_on_hemisphere(normal: Vec3): Self {
-        let on_unit_sphere = Self::random_unit_vector();
+    fn random_on_hemisphere(&rng: Rng<Xoshiro256>, normal: Vec3): Self {
+        let on_unit_sphere = Self::random_unit_vector(&rng);
         if on_unit_sphere.dot(normal) > 0.0 {
             on_unit_sphere
         } else {
             on_unit_sphere.neg()
         }
     }
+
 
     fn div(self, b: Vec3): Vec3 {
         Self::new(self.x * 1.0 / b.x, self.y * (1.0 / b.y), self.z * (1.0 / b.z))
