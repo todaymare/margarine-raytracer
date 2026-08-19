@@ -1,3 +1,6 @@
+use std::rand::Rng;
+use std::rand::Xoshiro256;
+
 mod math;
 mod ray;
 mod sphere;
@@ -17,52 +20,79 @@ use material::*;
 type Color = math::Vec3;
 
 fn main() {
-    let ground_material = Material::Lambertian(Vec3::new(0.8, 0.8, 0.0));
-    let center_material = Material::Lambertian(Vec3::new(0.1, 0.2, 0.5));
-    let left_material = Material::Dielectric(1.5);
-    let right_material = Material::Metal(MetalMaterial {
-        albedo: Vec3::new(0.8, 0.6, 0.2),
-        fuzz: 1.0,
-    });
+    var rng = Rng::new(Xoshiro256::from_seed((1, 2, 3, 4)));
+    var world = HittableList::new()
+        .add(Hittable::Sphere(Sphere::new(
+            Vec3::new(0.0, -1000.0, 0.0),
+            1000.0,
+            Material::Lambertian(Vec3::splat(0.5))
+        )));
 
-    let world = HittableList::new()
+    for a in -11..11 {
+        for b in -11..11 {
+            let choose_mat = rng.random::<float>();
+            let center = Vec3::new(
+                a as float + 0.9 * rng.random::<float>(),
+                0.2,
+                b as float + 0.9 * rng.random::<float>()
+            );
+            if center.sub(Vec3::new(4.0, 0.2, 0.0)).length() > 0.9 {
+                if choose_mat < 0.8 {
+                    let albedo = Vec3::random(&rng).mul(Vec3::random(&rng));
+                    world = world.add(Hittable::Sphere(Sphere::new(
+                        center,
+                        0.2,
+                        Material::Lambertian(albedo)
+                    )));
+                } else if choose_mat < 0.95 {
+                    let albedo = Vec3::random_range(&rng, 0.5, 1.0);
+                    let fuzz = 0.5 * rng.random::<float>();
+                    world = world.add(Hittable::Sphere(Sphere::new(
+                        center,
+                        0.2,
+                        Material::Metal(MetalMaterial { albedo, fuzz })
+                    )));
+                } else {
+                    world = world.add(Hittable::Sphere(Sphere::new(
+                        center,
+                        0.2,
+                        Material::Dielectric(1.5)
+                    )));
+                }
+            }
+        }
+    }
+
+    world = world
         .add(Hittable::Sphere(Sphere::new(
-            Vec3::new(0.0, -100.5, -1.0),
-            100.0,
-            ground_material
+            Vec3::new(0.0, 1.0, 0.0),
+            1.0,
+            Material::Dielectric(1.5)
         )))
         .add(Hittable::Sphere(Sphere::new(
-            Vec3::new(0.0, 0.0, -1.2),
-            0.5,
-            center_material
+            Vec3::new(-4.0, 1.0, 0.0),
+            1.0,
+            Material::Lambertian(Vec3::new(0.4, 0.2, 0.1))
         )))
         .add(Hittable::Sphere(Sphere::new(
-            Vec3::new(-1.0, 0.0, -1.0),
-            0.5,
-            left_material
-        )))
-        .add(Hittable::Sphere(Sphere::new(
-            Vec3::new(-1.0, 0.0, -1.0),
-            0.4,
-            Material::Dielectric(1.0 / 1.5)
-        )))
-        .add(Hittable::Sphere(Sphere::new(
-            Vec3::new(1.0, 0.0, -1.0),
-            0.5,
-            right_material
+            Vec3::new(4.0, 1.0, 0.0),
+            1.0,
+            Material::Metal(MetalMaterial {
+                albedo: Vec3::new(0.7, 0.6, 0.5),
+                fuzz: 0.0
+            })
         )));
 
     var camera = Camera::new();
     camera.aspect_ratio = 16.0 / 9.0;
     camera.image_width = 400;
-    camera.samples_per_pixel = 100;
+    camera.samples_per_pixel = 10;
     camera.max_depth = 50;
     camera.vfov = 20.0;
-    camera.lookfrom = Vec3::new(-2.0, 2.0, 1.0);
-    camera.lookat = Vec3::new(0.0, 0.0, -1.0);
+    camera.lookfrom = Vec3::new(13.0, 2.0, 3.0);
+    camera.lookat = Vec3::new(0.0, 0.0, 0.0);
     camera.vup = Vec3::new(0.0, 1.0, 0.0);
-    camera.defocus_angle = 10.0;
-    camera.focus_dist = 3.4;
+    camera.defocus_angle = 0.6;
+    camera.focus_dist = 10.0;
     camera.render(world);
-
 }
