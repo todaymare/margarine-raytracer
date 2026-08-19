@@ -34,6 +34,7 @@ impl Ray {
                     if direction.dot(rec.normal) > 0.0 {
                         Ray::new(rec.p, direction)
                             .color(world, depth - 1, &rng)
+                            .mul(albedo)
                     } else {
                         Color::splat(0.0)
                     }
