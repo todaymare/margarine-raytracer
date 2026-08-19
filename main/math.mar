@@ -1,3 +1,5 @@
+use std::rand::random;
+
 pub struct Vec3 {
     x: float,
     y: float,
@@ -43,6 +45,37 @@ impl Vec3 {
     }
 
     fn scale(self, b: float): Vec3 { self.mul(Self::splat(b)) }
+
+    fn random(): Self {
+        Self::new(random::<float>(), random::<float>(), random::<float>())
+    }
+
+    fn random_range(min: float, max: float): Self {
+        Self::new(
+            min + (max - min) * random::<float>(),
+            min + (max - min) * random::<float>(),
+            min + (max - min) * random::<float>()
+        )
+    }
+
+    fn random_unit_vector(): Self {
+        loop {
+            let p = Self::random_range(-1.0, 1.0);
+            let length_squared = p.length_squared();
+            if 1e-160 < length_squared && length_squared <= 1.0 {
+                return p.scale(1.0 / length_squared.sqrt());
+            }
+        }
+    }
+
+    fn random_on_hemisphere(normal: Vec3): Self {
+        let on_unit_sphere = Self::random_unit_vector();
+        if on_unit_sphere.dot(normal) > 0.0 {
+            on_unit_sphere
+        } else {
+            on_unit_sphere.neg()
+        }
+    }
 
     fn div(self, b: Vec3): Vec3 {
         Self::new(self.x * 1.0 / b.x, self.y * (1.0 / b.y), self.z * (1.0 / b.z))

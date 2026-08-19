@@ -11,11 +11,12 @@ pub struct Camera {
     aspect_ratio: float,
     image_width: int,
     samples_per_pixel: int,
+    max_depth: int,
 }
 
 impl Camera {
     pub fn new(): Self {
-        Self { aspect_ratio: 1.0, image_width: 100, samples_per_pixel: 10 }
+        Self { aspect_ratio: 1.0, image_width: 100, samples_per_pixel: 10, max_depth: 10 }
     }
 
     pub fn render(self, world: HittableList) {
@@ -66,7 +67,7 @@ impl Camera {
                         pixel_delta_v,
                         camera_center
                     );
-                    pixel_color = pixel_color.add(ray.color(world));
+                    pixel_color = pixel_color.add(ray.color(world, self.max_depth));
                 }
                 write_color(
                     &output,

@@ -13,13 +13,18 @@ impl Ray {
     fn new(ori: Vec3, dir: Vec3): Self { Self { ori, dir } }
     fn at(self, t: float): Vec3 { self.ori.add(self.dir.mul(Vec3::splat(t))) }
 
-    fn color(self, world: HittableList): Color {
-        match world.hit(self, Interval::new(0.0, 1.0 / 0.0)) {
-            some(rec) => Color::new(
-                0.5 * (rec.normal.x + 1.0),
-                0.5 * (rec.normal.y + 1.0),
-                0.5 * (rec.normal.z + 1.0),
-            ),
+    fn color(self, world: HittableList, depth: int): Color {
+        if depth <= 0 {
+            return Color::splat(0.0);
+        }
+
+        match world.hit(self, Interval::new(0.001, 1.0 / 0.0)) {
+            some(rec) => {
+                let direction = Vec3::random_on_hemisphere(rec.normal);
+                Ray::new(rec.p, direction)
+                    .color(world, depth - 1)
+                    .scale(0.5)
+            },
             none => {
                 let unit_direction = self.dir.unit();
                 let a = 0.5 * (unit_direction.y + 1.0);
@@ -31,5 +36,7 @@ impl Ray {
             }
         }
     }
+
+
 }
 
