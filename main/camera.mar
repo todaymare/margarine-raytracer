@@ -1,18 +1,21 @@
 use std::string::format;
 use std::string::ToStr;
+use std::rand::random;
 use root::math::Vec3;
 use root::ray::Ray;
 use root::hittable_list::HittableList;
+use root::interval::Interval;
 use root::Color;
 
 pub struct Camera {
     aspect_ratio: float,
     image_width: int,
+    samples_per_pixel: int,
 }
 
 impl Camera {
     pub fn new(): Self {
-        Self { aspect_ratio: 1.0, image_width: 100 }
+        Self { aspect_ratio: 1.0, image_width: 100, samples_per_pixel: 10 }
     }
 
     pub fn render(self, world: HittableList) {
@@ -53,14 +56,22 @@ impl Camera {
             println(format("Scanlines remaining: {}", [(image_height - j).to_str()]));
 
             for i in 0..self.image_width {
-                let pixel_center = pixel00_loc
-                    .add(pixel_delta_u.scale(i as float))
-                    .add(pixel_delta_v.scale(j as float));
-
-                let ray_direction = pixel_center.sub(camera_center);
-                let r = Ray::new(camera_center, ray_direction);
-                let pixel_color = r.color(world);
-                write_color(&output, pixel_color);
+                var pixel_color = Color::splat(0.0);
+                for sample in 0..self.samples_per_pixel {
+                    let ray = self.get_ray(
+                        i,
+                        j,
+                        pixel00_loc,
+                        pixel_delta_u,
+                        pixel_delta_v,
+                        camera_center
+                    );
+                    pixel_color = pixel_color.add(ray.color(world));
+                }
+                write_color(
+                    &output,
+                    pixel_color.scale(1.0 / self.samples_per_pixel as float)
+                );
             }
         }
 
@@ -69,12 +80,33 @@ impl Camera {
         std::io::write_file("out.ppm", output.as_bytes());
         println(write_time.elapsed());
     }
+
+    fn get_ray(
+        self,
+        i: int,
+        j: int,
+        pixel00_loc: Vec3,
+        pixel_delta_u: Vec3,
+        pixel_delta_v: Vec3,
+        camera_center: Vec3
+    ): Ray {
+        let offset = self.sample_square();
+        let pixel_sample = pixel00_loc
+            .add(pixel_delta_u.scale(i as float + offset.x))
+            .add(pixel_delta_v.scale(j as float + offset.y));
+        Ray::new(camera_center, pixel_sample.sub(camera_center))
+    }
+
+    fn sample_square(self): Vec3 {
+        Vec3::new(random::<float>() - 0.5, random::<float>() - 0.5, 0.0)
+    }
 }
 
 fn write_color(&output: str, color: Color) {
-    let ir = (color.x * 255.999) as int;
-    let ig = (color.y * 255.999) as int;
-    let ib = (color.z * 255.999) as int;
+    let intensity = Interval::new(0.0, 0.999);
+    let ir = (intensity.clamp(color.x) * 256.0) as int;
+    let ig = (intensity.clamp(color.y) * 256.0) as int;
+    let ib = (intensity.clamp(color.z) * 256.0) as int;
 
     output = output.concat(format(
         "{} {} {}\n",

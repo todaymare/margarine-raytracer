@@ -23,6 +23,15 @@ impl Interval {
     pub fn contains(self, value: float): bool {
         self.min <= value && value <= self.max
     }
+    pub fn clamp(self, value: float): float {
+        if value < self.min {
+            self.min
+        } else if value > self.max {
+            self.max
+        } else {
+            value
+        }
+    }
 
     pub fn surrounds(self, value: float): bool {
         self.min < value && value < self.max
