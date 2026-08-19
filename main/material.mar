@@ -1,6 +1,11 @@
 use root::math::Vec3;
 
+pub struct MetalMaterial {
+    albedo: Vec3,
+    fuzz: float,
+}
+
 pub enum Material {
     Lambertian(Vec3),
-    Metal(Vec3),
+    Metal(MetalMaterial),
 }

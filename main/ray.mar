@@ -29,12 +29,13 @@ impl Ray {
                         .color(world, depth - 1, &rng)
                         .mul(albedo)
                 },
-                Metal(albedo) => {
-                    let direction = self.dir.reflect(rec.normal);
-                    if direction.dot(rec.normal) > 0.0 {
-                        Ray::new(rec.p, direction)
+                Metal(metal) => {
+                    let reflected = self.dir.reflect(rec.normal).unit()
+                        .add(Vec3::random_unit_vector(&rng).scale(metal.fuzz));
+                    if reflected.dot(rec.normal) > 0.0 {
+                        Ray::new(rec.p, reflected)
                             .color(world, depth - 1, &rng)
-                            .mul(albedo)
+                            .mul(metal.albedo)
                     } else {
                         Color::splat(0.0)
                     }
