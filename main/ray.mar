@@ -47,8 +47,15 @@ impl Ray {
                         refraction_index
                     };
                     let unit_direction = self.dir.unit();
-                    let refracted = unit_direction.refract(rec.normal, ri);
-                    Ray::new(rec.p, refracted)
+                    let cos_theta = -unit_direction.dot(rec.normal);
+                    let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
+                    let cannot_refract = ri * sin_theta > 1.0;
+                    let direction = if cannot_refract {
+                        unit_direction.reflect(rec.normal)
+                    } else {
+                        unit_direction.refract(rec.normal, ri)
+                    };
+                    Ray::new(rec.p, direction)
                         .color(world, depth - 1, &rng)
                 },
             },
