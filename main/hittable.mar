@@ -2,6 +2,7 @@ use root::math::Vec3;
 use root::ray::Ray;
 use root::sphere::Sphere;
 use root::hittable_list::HittableList;
+use root::interval::Interval;
 
 pub struct HitRecord {
     p: Vec3,
@@ -28,10 +29,10 @@ pub enum Hittable {
 }
 
 impl Hittable {
-    pub fn hit(self, r: Ray, ray_tmin: float, ray_tmax: float): Option<HitRecord> {
+    pub fn hit(self, r: Ray, ray_t: Interval): Option<HitRecord> {
         match self {
-            Sphere(s) => s.hit(r, ray_tmin, ray_tmax),
-            List(l) => l.hit(r, ray_tmin, ray_tmax),
+            Sphere(s) => s.hit(r, ray_t),
+            List(l) => l.hit(r, ray_t),
         }
     }
 }

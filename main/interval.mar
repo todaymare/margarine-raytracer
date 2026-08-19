@@ -1,0 +1,30 @@
+pub struct Interval {
+    min: float,
+    max: float,
+}
+
+impl Interval {
+    pub fn new(min: float, max: float): Self {
+        Self { min, max }
+    }
+
+    pub fn empty(): Self {
+        Self::new(1.0 / 0.0, -1.0 / 0.0)
+    }
+
+    pub fn universe(): Self {
+        Self::new(-1.0 / 0.0, 1.0 / 0.0)
+    }
+
+    pub fn size(self): float {
+        self.max - self.min
+    }
+
+    pub fn contains(self, value: float): bool {
+        self.min <= value && value <= self.max
+    }
+
+    pub fn surrounds(self, value: float): bool {
+        self.min < value && value < self.max
+    }
+}

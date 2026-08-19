@@ -1,5 +1,6 @@
 use root::math::Vec3;
 use root::hittable_list::HittableList;
+use root::interval::Interval;
 use root::Color;
 
 pub struct Ray {
@@ -13,7 +14,7 @@ impl Ray {
     fn at(self, t: float): Vec3 { self.ori.add(self.dir.mul(Vec3::splat(t))) }
 
     fn color(self, world: HittableList): Color {
-        match world.hit(self, 0.0, 1.0 / 0.0) {
+        match world.hit(self, Interval::new(0.0, 1.0 / 0.0)) {
             some(rec) => Color::new(
                 0.5 * (rec.normal.x + 1.0),
                 0.5 * (rec.normal.y + 1.0),

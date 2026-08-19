@@ -6,12 +6,14 @@ mod ray;
 mod sphere;
 mod hittable_list;
 mod hittable;
+mod interval;
 
 use math::*;
 use ray::*;
 use sphere::*;
 use hittable_list::*;
 use hittable::*;
+use interval::*;
 
 type Color = math::Vec3;
 

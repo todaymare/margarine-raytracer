@@ -1,6 +1,7 @@
 use root::math::Vec3;
 use root::ray::Ray;
 use root::hittable::HitRecord;
+use root::interval::Interval;
 use std::math::max_float;
 
 pub struct Sphere {
@@ -13,7 +14,7 @@ impl Sphere {
         Self { center: center, radius: max_float(0.0, radius) }
     }
 
-    pub fn hit(self, r: Ray, ray_tmin: float, ray_tmax: float): Option<HitRecord> {
+    pub fn hit(self, r: Ray, ray_t: Interval): Option<HitRecord> {
         let oc = self.center.sub(r.ori);
         let a = r.dir.length_squared();
         let h = r.dir.dot(oc);
@@ -25,9 +26,9 @@ impl Sphere {
 
         let sqrtd = discriminant.sqrt();
         var root = (h - sqrtd) / a;
-        if root <= ray_tmin || ray_tmax <= root {
+        if !ray_t.surrounds(root) {
             root = (h + sqrtd) / a;
-            if root <= ray_tmin || ray_tmax <= root {
+            if !ray_t.surrounds(root) {
                 return none();
             }
         }
