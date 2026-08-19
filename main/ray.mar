@@ -40,6 +40,17 @@ impl Ray {
                         Color::splat(0.0)
                     }
                 },
+                Dielectric(refraction_index) => {
+                    let ri = if rec.front_face {
+                        1.0 / refraction_index
+                    } else {
+                        refraction_index
+                    };
+                    let unit_direction = self.dir.unit();
+                    let refracted = unit_direction.refract(rec.normal, ri);
+                    Ray::new(rec.p, refracted)
+                        .color(world, depth - 1, &rng)
+                },
             },
             none => {
                 let unit_direction = self.dir.unit();

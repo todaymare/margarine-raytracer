@@ -8,4 +8,5 @@ pub struct MetalMaterial {
 pub enum Material {
     Lambertian(Vec3),
     Metal(MetalMaterial),
+    Dielectric(float),
 }
