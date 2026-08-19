@@ -103,11 +103,22 @@ impl Camera {
     }
 }
 
+fn linear_to_gamma(value: float): float {
+    if value > 0.0 {
+        value.sqrt()
+    } else {
+        0.0
+    }
+}
+
 fn write_color(&output: str, color: Color) {
+    let r = linear_to_gamma(color.x);
+    let g = linear_to_gamma(color.y);
+    let b = linear_to_gamma(color.z);
     let intensity = Interval::new(0.0, 0.999);
-    let ir = (intensity.clamp(color.x) * 256.0) as int;
-    let ig = (intensity.clamp(color.y) * 256.0) as int;
-    let ib = (intensity.clamp(color.z) * 256.0) as int;
+    let ir = (intensity.clamp(r) * 256.0) as int;
+    let ig = (intensity.clamp(g) * 256.0) as int;
+    let ib = (intensity.clamp(b) * 256.0) as int;
 
     output = output.concat(format(
         "{} {} {}\n",
