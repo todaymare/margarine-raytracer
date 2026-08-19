@@ -19,7 +19,7 @@ type Color = math::Vec3;
 fn main() {
     let ground_material = Material::Lambertian(Vec3::new(0.8, 0.8, 0.0));
     let center_material = Material::Lambertian(Vec3::new(0.1, 0.2, 0.5));
-    let left_material = Material::Dielectric(1.5);
+    let left_material = Material::Dielectric(1.0 / 1.33);
     let right_material = Material::Metal(MetalMaterial {
         albedo: Vec3::new(0.8, 0.6, 0.2),
         fuzz: 1.0,
