@@ -2,16 +2,18 @@ use root::math::Vec3;
 use root::ray::Ray;
 use root::hittable::HitRecord;
 use root::interval::Interval;
+use root::material::Material;
 use std::math::max_float;
 
 pub struct Sphere {
     center: Vec3,
     radius: float,
+    material: Material,
 }
 
 impl Sphere {
-    pub fn new(center: Vec3, radius: float): Self {
-        Self { center: center, radius: max_float(0.0, radius) }
+    pub fn new(center: Vec3, radius: float, material: Material): Self {
+        Self { center: center, radius: max_float(0.0, radius), material: material }
     }
 
     pub fn hit(self, r: Ray, ray_t: Interval): Option<HitRecord> {
@@ -35,7 +37,13 @@ impl Sphere {
 
         let p = r.at(root);
         let outward_normal = p.sub(self.center).div(Vec3::splat(self.radius));
-        let record = HitRecord { p: p, normal: outward_normal, t: root, front_face: false };
+        let record = HitRecord {
+            p: p,
+            normal: outward_normal,
+            t: root,
+            front_face: false,
+            material: self.material
+        };
         some(record.set_face_normal(r, outward_normal))
     }
 }

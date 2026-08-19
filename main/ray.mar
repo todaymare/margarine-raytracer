@@ -1,6 +1,7 @@
 use root::math::Vec3;
 use root::hittable_list::HittableList;
 use root::interval::Interval;
+use root::material::Material;
 use root::Color;
 
 pub struct Ray {
@@ -19,11 +20,23 @@ impl Ray {
         }
 
         match world.hit(self, Interval::new(0.001, 1.0 / 0.0)) {
-            some(rec) => {
-                let direction = rec.normal.add(Vec3::random_unit_vector());
-                Ray::new(rec.p, direction)
-                    .color(world, depth - 1)
-                    .scale(0.5)
+            some(rec) => match rec.material {
+                Lambertian(albedo) => {
+                    let direction = rec.normal.add(Vec3::random_unit_vector());
+                    Ray::new(rec.p, direction)
+                        .color(world, depth - 1)
+                        .mul(albedo)
+                },
+                Metal(albedo) => {
+                    let direction = self.dir.reflect(rec.normal);
+                    if direction.dot(rec.normal) > 0.0 {
+                        Ray::new(rec.p, direction)
+                            .color(world, depth - 1)
+                            .mul(albedo)
+                    } else {
+                        Color::splat(0.0)
+                    }
+                },
             },
             none => {
                 let unit_direction = self.dir.unit();

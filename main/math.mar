@@ -84,6 +84,10 @@ impl Vec3 {
     fn dot(self, other: Vec3): float {
         self.x * other.x + self.y * other.y + self.z * other.z
     }
+
+    fn reflect(self, normal: Vec3): Vec3 {
+        self.sub(normal.scale(2.0 * self.dot(normal)))
+    }
     
     fn cross(self, v: Vec3): Self {
         let u = self;
