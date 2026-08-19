@@ -23,8 +23,8 @@ impl HitRecord {
 }
 
 pub enum Hittable {
-    Sphere: Sphere,
-    List: HittableList,
+    Sphere(Sphere),
+    List(HittableList),
 }
 
 impl Hittable {
