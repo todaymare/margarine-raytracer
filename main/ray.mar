@@ -50,7 +50,8 @@ impl Ray {
                     let cos_theta = -unit_direction.dot(rec.normal);
                     let sin_theta = (1.0 - cos_theta * cos_theta).sqrt();
                     let cannot_refract = ri * sin_theta > 1.0;
-                    let direction = if cannot_refract {
+                    let direction = if cannot_refract
+                        || reflectance(cos_theta, ri) > rng.random::<float>() {
                         unit_direction.reflect(rec.normal)
                     } else {
                         unit_direction.refract(rec.normal, ri)
@@ -74,3 +75,15 @@ impl Ray {
 
 }
 
+
+fn reflectance(cosine: float, refraction_index: float): float {
+    let r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
+    let r0 = r0 * r0;
+    let one_minus_cosine = 1.0 - cosine;
+    r0 + (1.0 - r0)
+        * one_minus_cosine
+        * one_minus_cosine
+        * one_minus_cosine
+        * one_minus_cosine
+        * one_minus_cosine
+}
