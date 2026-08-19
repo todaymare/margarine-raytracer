@@ -20,7 +20,7 @@ impl Ray {
 
         match world.hit(self, Interval::new(0.001, 1.0 / 0.0)) {
             some(rec) => {
-                let direction = Vec3::random_on_hemisphere(rec.normal);
+                let direction = rec.normal.add(Vec3::random_unit_vector());
                 Ray::new(rec.p, direction)
                     .color(world, depth - 1)
                     .scale(0.5)
