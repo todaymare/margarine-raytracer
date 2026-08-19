@@ -13,11 +13,11 @@ pub struct Camera {
     image_width: int,
     samples_per_pixel: int,
     max_depth: int,
+    vfov: float,
 }
-
 impl Camera {
     pub fn new(): Self {
-        Self { aspect_ratio: 1.0, image_width: 100, samples_per_pixel: 10, max_depth: 10 }
+        Self { aspect_ratio: 1.0, image_width: 100, samples_per_pixel: 10, max_depth: 10, vfov: 90.0 }
     }
 
     pub fn render(self, world: HittableList) {
@@ -28,7 +28,9 @@ impl Camera {
         let image_height = image_height.max(1);
 
         let focal_length = 1.0;
-        let viewport_height = 2.0;
+        let theta = self.vfov * 3.141592653589793 / 180.0;
+        let h = tan(theta * 0.5);
+        let viewport_height = 2.0 * h * focal_length;
         let viewport_width = viewport_height
             * (self.image_width as float / image_height as float);
         let camera_center = Vec3::new(0.0, 0.0, 0.0);
@@ -128,4 +130,9 @@ fn write_color(&output: str, color: Color) {
         "{} {} {}\n",
         [ir.to_str(), ig.to_str(), ib.to_str()]
     ))
+}
+
+fn tan(value: float): float {
+    let squared = value * value;
+    value * (15.0 - squared) / (15.0 - 6.0 * squared)
 }

@@ -17,38 +17,19 @@ use material::*;
 type Color = math::Vec3;
 
 fn main() {
-    let ground_material = Material::Lambertian(Vec3::new(0.8, 0.8, 0.0));
-    let center_material = Material::Lambertian(Vec3::new(0.1, 0.2, 0.5));
-    let left_material = Material::Dielectric(1.5);
-    let right_material = Material::Metal(MetalMaterial {
-        albedo: Vec3::new(0.8, 0.6, 0.2),
-        fuzz: 0.0,
-    });
+    let radius = 0.7071067811865475;
+    let left_material = Material::Lambertian(Vec3::new(0.0, 0.0, 1.0));
+    let right_material = Material::Lambertian(Vec3::new(1.0, 0.0, 0.0));
 
     let world = HittableList::new()
         .add(Hittable::Sphere(Sphere::new(
-            Vec3::new(0.0, -100.5, -1.0),
-            100.0,
-            ground_material
-        )))
-        .add(Hittable::Sphere(Sphere::new(
-            Vec3::new(0.0, 0.0, -1.2),
-            0.5,
-            center_material
-        )))
-        .add(Hittable::Sphere(Sphere::new(
-            Vec3::new(-1.0, 0.0, -1.0),
-            0.5,
+            Vec3::new(-radius, 0.0, -1.0),
+            radius,
             left_material
         )))
         .add(Hittable::Sphere(Sphere::new(
-            Vec3::new(-1.0, 0.0, -1.0),
-            0.4,
-            Material::Dielectric(1.0 / 1.5)
-        )))
-        .add(Hittable::Sphere(Sphere::new(
-            Vec3::new(1.0, 0.0, -1.0),
-            0.5,
+            Vec3::new(radius, 0.0, -1.0),
+            radius,
             right_material
         )));
 
@@ -57,5 +38,7 @@ fn main() {
     camera.image_width = 400;
     camera.samples_per_pixel = 100;
     camera.max_depth = 50;
+    camera.vfov = 90.0;
     camera.render(world);
+
 }
