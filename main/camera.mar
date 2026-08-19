@@ -17,7 +17,10 @@ pub struct Camera {
     lookfrom: Vec3,
     lookat: Vec3,
     vup: Vec3,
+    defocus_angle: float,
+    focus_dist: float,
 }
+
 impl Camera {
     pub fn new(): Self {
         Self {
@@ -28,7 +31,9 @@ impl Camera {
             vfov: 90.0,
             lookfrom: Vec3::new(0.0, 0.0, 0.0),
             lookat: Vec3::new(0.0, 0.0, -1.0),
-            vup: Vec3::new(0.0, 1.0, 0.0)
+            vup: Vec3::new(0.0, 1.0, 0.0),
+            defocus_angle: 0.0,
+            focus_dist: 10.0
         }
     }
 
@@ -39,7 +44,7 @@ impl Camera {
         let image_height = (self.image_width as float / self.aspect_ratio) as int;
         let image_height = image_height.max(1);
 
-        let focal_length = self.lookfrom.sub(self.lookat).length();
+        let focal_length = self.focus_dist;
         let theta = self.vfov * 3.141592653589793 / 180.0;
         let h = tan(theta * 0.5);
         let viewport_height = 2.0 * h * focal_length;
@@ -52,6 +57,10 @@ impl Camera {
         let v = w.cross(u);
         let viewport_u = u.scale(viewport_width);
         let viewport_v = v.scale(-viewport_height);
+        let defocus_radius = self.focus_dist
+            * tan(self.defocus_angle * 3.141592653589793 / 360.0);
+        let defocus_disk_u = u.scale(defocus_radius);
+        let defocus_disk_v = v.scale(defocus_radius);
 
         let pixel_delta_u = viewport_u.scale(1.0 / self.image_width as float);
         let pixel_delta_v = viewport_v.scale(1.0 / image_height as float);
@@ -81,6 +90,8 @@ impl Camera {
                     let ray = self.get_ray(
                         i,
                         j,
+                        defocus_disk_u,
+                        defocus_disk_v,
                         pixel00_loc,
                         pixel_delta_u,
                         pixel_delta_v,
@@ -106,6 +117,8 @@ impl Camera {
         self,
         i: int,
         j: int,
+        defocus_disk_u: Vec3,
+        defocus_disk_v: Vec3,
         pixel00_loc: Vec3,
         pixel_delta_u: Vec3,
         pixel_delta_v: Vec3,
@@ -116,7 +129,28 @@ impl Camera {
         let pixel_sample = pixel00_loc
             .add(pixel_delta_u.scale(i as float + offset.x))
             .add(pixel_delta_v.scale(j as float + offset.y));
-        Ray::new(camera_center, pixel_sample.sub(camera_center))
+        let disk_sample = self.random_in_unit_disk(&rng);
+        let ray_origin = if self.defocus_angle <= 0.0 {
+            camera_center
+        } else {
+            camera_center
+                .add(defocus_disk_u.scale(disk_sample.x))
+                .add(defocus_disk_v.scale(disk_sample.y))
+        };
+        Ray::new(ray_origin, pixel_sample.sub(ray_origin))
+    }
+
+    fn random_in_unit_disk(self, &rng: Rng<Xoshiro256>): Vec3 {
+        let p = Vec3::new(
+            rng.random::<float>() * 2.0 - 1.0,
+            rng.random::<float>() * 2.0 - 1.0,
+            0.0
+        );
+        if p.length_squared() < 1.0 {
+            p
+        } else {
+            p.scale(0.7071067811865475)
+        }
     }
 
     fn sample_square(self, &rng: Rng<Xoshiro256>): Vec3 {
