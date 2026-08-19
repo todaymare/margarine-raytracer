@@ -93,6 +93,15 @@ impl Vec3 {
     fn reflect(self, normal: Vec3): Vec3 {
         self.sub(normal.scale(2.0 * self.dot(normal)))
     }
+
+    fn refract(self, normal: Vec3, etai_over_etat: float): Vec3 {
+        let cos_theta = -self.dot(normal);
+        let r_out_perp = self.add(normal.scale(cos_theta)).scale(etai_over_etat);
+        let r_out_parallel = normal.scale(
+            -(1.0 - r_out_perp.length_squared()).sqrt()
+        );
+        r_out_perp.add(r_out_parallel)
+    }
     
     fn cross(self, v: Vec3): Self {
         let u = self;
